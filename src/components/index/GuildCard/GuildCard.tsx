@@ -25,6 +25,12 @@ const GuildCard = ({ guildData }: Props): JSX.Element => {
       _hover={{ textDecor: "none" }}
       borderRadius="2xl"
       w="full"
+      gridColumn={{
+        sm:
+          (guildData.levels?.[0]?.requirements.length > 2 ||
+            guildData.name.length > 11) &&
+          "span 2",
+      }}
     >
       <Card
         role="group"
