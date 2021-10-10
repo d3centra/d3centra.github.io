@@ -21,27 +21,22 @@ import ColorModePicker from "./components/ColorModePicker"
 import ColorPicker from "./components/ColorPicker"
 
 const EditButton = (): JSX.Element => {
-  const methods = useForm({ mode: "all" })
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const { themeColor } = useGuild()
-
-  useEffect(() => {
-    methods.reset({
+  const { themeMode, themeColor } = useGuild()
+  const methods = useForm({
+    mode: "all",
+    defaultValues: {
       themeColor,
-    })
-  }, [])
-
+    },
+  })
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const { onSubmit, isLoading, isSuccess } = useSubmitMachine("PATCH")
   const { setThemeMode, themeMode: localThemeMode } = useColorContext()
-  const { themeMode } = useGuild()
 
   useEffect(() => {
     if (isSuccess) onClose()
   }, [isSuccess])
 
   const onCloseHandler = () => {
-    console.log(themeMode, localThemeMode)
-
     if (themeMode !== localThemeMode) setThemeMode(themeMode)
     onClose()
   }
