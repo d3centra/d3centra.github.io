@@ -55,7 +55,7 @@ const EditButton = (): JSX.Element => {
         <ModalOverlay>
           <ModalContent>
             <FormProvider {...methods}>
-              <ModalHeader>Edit Guild</ModalHeader>
+              <ModalHeader>Edit appearance</ModalHeader>
 
               <ModalBody>
                 <VStack alignItems="start" spacing={4} width="full">
