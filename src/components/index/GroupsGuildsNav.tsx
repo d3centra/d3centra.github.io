@@ -14,6 +14,7 @@ const buttonStyle = {
 
 const GroupsGuildsNav = () => {
   const router = useRouter()
+  console.log(router.asPath)
   return (
     <HStack mb={8}>
       <LinkButton href="/" isActive={router.asPath === "/"} {...buttonStyle}>
