@@ -1,4 +1,5 @@
 import {
+  EASINGS,
   HStack,
   SimpleGrid,
   Stack,
@@ -18,6 +19,7 @@ import LogicDivider from "components/[guild]/LogicDivider"
 import Members from "components/[guild]/Members"
 import useMembers from "components/[guild]/Members/hooks/useMembers"
 import RequirementCard from "components/[guild]/RequirementCard"
+import { motion } from "framer-motion"
 import { GetStaticPaths, GetStaticProps } from "next"
 import React from "react"
 import { SWRConfig } from "swr"
@@ -25,6 +27,22 @@ import guilds from "temporaryData/guilds"
 import { Guild } from "temporaryData/types"
 import fetchApi from "utils/fetchApi"
 import kebabToCamelCase from "utils/kebabToCamelCase"
+
+const MotionVStack = motion(VStack)
+
+const requirementContainerVariants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+}
+
+const requirementCardVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  show: { opacity: 1, scale: 1 },
+}
 
 const GuildPage = (): JSX.Element => {
   const { account } = useWeb3React()
@@ -61,14 +79,24 @@ const GuildPage = (): JSX.Element => {
       <Stack spacing="12">
         <Section title="Requirements">
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={{ base: 5, md: 6 }}>
-            <VStack>
+            <MotionVStack
+              variants={requirementContainerVariants}
+              initial="hidden"
+              animate="show"
+            >
               {requirements?.map((requirement, i) => (
-                <React.Fragment key={i}>
+                <MotionVStack
+                  key={requirement.address}
+                  width="full"
+                  spacing={2}
+                  variants={requirementCardVariants}
+                  transition={{ ease: EASINGS.easeOut }}
+                >
                   <RequirementCard requirement={requirement} />
                   {i < requirements.length - 1 && <LogicDivider logic={logic} />}
-                </React.Fragment>
+                </MotionVStack>
               ))}
-            </VStack>
+            </MotionVStack>
           </SimpleGrid>
         </Section>
         {/* <Section title={`Use the #${hashtag} hashtag!`}>
