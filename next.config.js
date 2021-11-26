@@ -25,6 +25,11 @@ module.exports = {
         destination: "/:path*",
         permanent: true,
       },
+      {
+        source: "/protein-community/:path*",
+        destination: "/protein/:path*",
+        permanent: false,
+      },
     ]
   },
 }
