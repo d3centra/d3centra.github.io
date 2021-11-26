@@ -25,16 +25,6 @@ module.exports = {
         destination: "/:path*",
         permanent: true,
       },
-      {
-        source: "/guild/protein",
-        destination: "/protein-community",
-        permanent: true,
-      },
-      {
-        source: "/guild/rose-hands",
-        destination: "/mad-realities-dao",
-        permanent: true,
-      },
     ]
   },
 }
