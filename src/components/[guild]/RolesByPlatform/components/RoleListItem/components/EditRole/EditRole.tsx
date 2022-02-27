@@ -21,31 +21,30 @@ import IconSelector from "components/create-guild/IconSelector"
 import LogicPicker from "components/create-guild/LogicPicker"
 import Name from "components/create-guild/Name"
 import Requirements from "components/create-guild/Requirements"
-import DeleteRoleButton from "components/[guild]/edit/[role]/DeleteRoleButton"
-import useEditRole from "components/[guild]/edit/[role]/hooks/useEditRole"
+import useGuild from "components/[guild]/hooks/useGuild"
 import usePersonalSign from "hooks/usePersonalSign"
 import useUploadPromise from "hooks/useUploadPromise"
 import useWarnIfUnsavedChanges from "hooks/useWarnIfUnsavedChanges"
 import { Check, PencilSimple } from "phosphor-react"
-import { useEffect, useRef } from "react"
+import { useRef } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { Role } from "types"
 import mapRequirements from "utils/mapRequirements"
+import DeleteRoleButton from "./components/DeleteRoleButton"
+import useEditRole from "./hooks/useEditRole"
 
 type Props = {
   roleData: Role
 }
 
 const EditRole = ({ roleData }: Props): JSX.Element => {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const btnRef = useRef()
-  const drawerSize = useBreakpointValue({ base: "full", md: "xl" })
-
-  const { id, name, description, imageUrl, logic, requirements } = roleData
-
   const { isSigning } = usePersonalSign()
-  const { onSubmit, isLoading, response } = useEditRole(id)
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const drawerSize = useBreakpointValue({ base: "full", md: "xl" })
+  const btnRef = useRef()
 
+  const { platforms } = useGuild()
+  const { id, name, description, imageUrl, logic, requirements } = roleData
   const defaultValues = {
     name,
     description,
@@ -53,11 +52,17 @@ const EditRole = ({ roleData }: Props): JSX.Element => {
     logic,
     requirements: mapRequirements(requirements),
   }
-
   const methods = useForm({
     mode: "all",
     defaultValues,
   })
+
+  const onSuccess = () => {
+    onClose()
+    methods.reset(undefined, { keepValues: true })
+  }
+
+  const { onSubmit, isLoading } = useEditRole(id, onSuccess)
 
   useWarnIfUnsavedChanges(
     methods.formState?.isDirty && !methods.formState.isSubmitted
@@ -74,21 +79,6 @@ const EditRole = ({ roleData }: Props): JSX.Element => {
     onAlertClose()
     onClose()
   }
-
-  useEffect(() => {
-    if (!response) return
-
-    onClose()
-
-    // Resetting the form in order to reset the `isDirty` variable
-    methods.reset({
-      name: methods.getValues("name"),
-      description: methods.getValues("description"),
-      logic: methods.getValues("logic"),
-      requirements: methods.getValues("requirements"),
-      imageUrl: response.imageUrl,
-    })
-  }, [response])
 
   const { handleSubmit, isUploading, setUploadPromise, shouldBeLoading } =
     useUploadPromise(methods.handleSubmit)
@@ -122,7 +112,7 @@ const EditRole = ({ roleData }: Props): JSX.Element => {
         <DrawerContent>
           <DrawerBody className="custom-scrollbar">
             <DrawerHeader title="Edit role">
-              <DeleteRoleButton roleId={id} />
+              {platforms[0]?.roles?.length > 1 && <DeleteRoleButton roleId={id} />}
             </DrawerHeader>
             <FormProvider {...methods}>
               <VStack spacing={10} alignItems="start">
@@ -151,7 +141,7 @@ const EditRole = ({ roleData }: Props): JSX.Element => {
               Cancel
             </Button>
             <Button
-              disabled={isLoading || isSigning || !!response || shouldBeLoading}
+              disabled={isLoading || isSigning || shouldBeLoading}
               isLoading={isLoading || isSigning || shouldBeLoading}
               colorScheme="green"
               loadingText={loadingText()}

@@ -1,7 +1,9 @@
+import { useWeb3React } from "@web3-react/core"
 import useGuild from "components/[guild]/hooks/useGuild"
 import useShowErrorToast from "hooks/useShowErrorToast"
 import { useSubmitWithSign } from "hooks/useSubmit"
 import useToast from "hooks/useToast"
+import { useRouter } from "next/router"
 import { useSWRConfig } from "swr"
 import fetcher from "utils/fetcher"
 
@@ -9,32 +11,35 @@ type Data = {
   deleteFromDiscord?: boolean
 }
 
-const useDeleteRole = (roleId: number) => {
+const useDeleteGuild = () => {
+  const { account } = useWeb3React()
   const { mutate } = useSWRConfig()
   const toast = useToast()
   const showErrorToast = useShowErrorToast()
+  const router = useRouter()
 
   const guild = useGuild()
 
   const submit = async (data: Data) =>
-    fetcher(`/role/${roleId}`, {
+    fetcher(`/guild/${guild.id}`, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: data,
     })
 
   return useSubmitWithSign<Data, any>(submit, {
     onSuccess: () => {
       toast({
-        title: `Role deleted!`,
+        title: `Guild deleted!`,
+        description: "You're being redirected to the home page",
         status: "success",
       })
 
-      mutate(`/guild/urlName/${guild?.urlName}`)
-      mutate("/guild?sort=members")
+      mutate(`/guild/address/${account}?order=members`)
+      mutate("/guild?order=members")
+      router.push("/")
     },
     onError: (error) => showErrorToast(error),
   })
 }
 
-export default useDeleteRole
+export default useDeleteGuild
