@@ -29,7 +29,7 @@ import { Guild } from "types"
 import fetcher from "utils/fetcher"
 
 const GuildPage = (): JSX.Element => {
-  const { name, description, imageUrl, platforms, owner } = useGuild()
+  const { name, description, imageUrl, platforms, owner, showMembers } = useGuild()
   const [DynamicEditGuildButton, setDynamicEditGuildButton] = useState(null)
   const [DynamicAddRoleButton, setDynamicAddRoleButton] = useState(null)
 
@@ -106,9 +106,7 @@ const GuildPage = (): JSX.Element => {
                 }
               >
                 {platform.roles
-                  ?.sort(
-                    (role1, role2) => role2.members?.length - role1.members?.length
-                  )
+                  ?.sort((role1, role2) => role2.memberCount - role1.memberCount)
                   ?.map((role) => (
                     <RoleListItem
                       key={role.id}
@@ -123,20 +121,23 @@ const GuildPage = (): JSX.Element => {
             </RolesByPlatform>
           ))}
         </VStack>
-        <Section
-          title="Members"
-          titleRightElement={
-            <Tag size="sm">
-              {members?.filter((address) => !!address)?.length ?? 0}
-            </Tag>
-          }
-        >
-          <Members
-            owner={owner}
-            members={members}
-            fallbackText="This guild has no members yet"
-          />
-        </Section>
+
+        {showMembers && (
+          <Section
+            title="Members"
+            titleRightElement={
+              <Tag size="sm">
+                {members?.filter((address) => !!address)?.length ?? 0}
+              </Tag>
+            }
+          >
+            <Members
+              owner={owner}
+              members={members}
+              fallbackText="This guild has no members yet"
+            />
+          </Section>
+        )}
       </Stack>
     </Layout>
   )
@@ -178,6 +179,7 @@ const getStaticProps: GetStaticProps = async ({ params }) => {
   if (!data?.id)
     return {
       notFound: true,
+      revalidate: 10,
     }
 
   return {
